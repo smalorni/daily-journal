@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react"
+import { getAllTags } from "./EntryManager"
 
-export const EntryForm = ({ entry, moods, onFormSubmit }) => {
+export const EntryForm = ({ entry, moods, onFormSubmit, tags }) => {
     const [editMode, setEditMode] = useState(false)
     const [updatedEntry, setUpdatedEntry] = useState(entry)
-
+    //For checkboxes to work
+    const [selectedTag, setSelectedTag] = useState([])
+  
     useEffect(() => {
         setUpdatedEntry(entry)
         if ('id' in entry) {
@@ -23,18 +26,18 @@ export const EntryForm = ({ entry, moods, onFormSubmit }) => {
         newEntry[event.target.name] = event.target.value
         setUpdatedEntry(newEntry)
     }
-
-
-
+    //Added copyEntry.tags to this function
     const constructNewEntry = () => {
         const copyEntry = { ...updatedEntry }
         copyEntry.moodId = parseInt(copyEntry.moodId)
         if (!copyEntry.date) {
             copyEntry.date = Date(Date.now()).toLocaleString('en-us').split('GMT')[0]
         }
+        copyEntry.tags = selectedTag
         onFormSubmit(copyEntry)
     }
-
+    
+    
     return (
         <article className="panel is-info">
             <h2 className="panel-heading">{editMode ? "Update Entry" : "Create Entry"}</h2>
@@ -80,6 +83,26 @@ export const EntryForm = ({ entry, moods, onFormSubmit }) => {
                             </div>
                         </div>
                     </div>
+                    <div className="field">
+                        <div className="control">
+                            
+                            {
+                                tags.map((tag)=> {
+                                return <>
+                                <label htmlFor="checkbox">{tag.label}</label>
+                                <input
+                                    type="checkbox" 
+                                    checked={selectedTag.includes(tag.id)}
+                                    onChange={
+                                        (evt) => {
+                                    const copy = [...selectedTag]
+                                    copy.push(tag.id)
+                                    setSelectedTag(copy)
+                                }}/></>
+                            }
+                                        )}
+                            </div>
+                        </div>
                     <div className="field">
                         <div className="control">
                             <button type="submit"
